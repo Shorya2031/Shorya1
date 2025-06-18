@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Harry Potter - Enter Your Wizard Name</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #26054b 100%);
+      color: #e3dccc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    .container {
+      background: rgba(38, 5, 75, 0.75);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.6);
+      max-width: 420px;
+      width: 100%;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    /* Heading */
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      color: #cbb67f;
+      text-shadow: 0 0 8px #cbb67f99;
+      letter-spacing: 0.1em;
+    }
+
+    /* Subheading */
+    p.subtitle {
+      font-size: 1.1rem;
+      color: #bdb5a8;
+      margin-bottom: 32px;
+      font-style: italic;
+      text-shadow: 0 0 6px #a5884e66;
+    }
+
+    /* Input wrapper */
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    /* Material icon inside input */
+    .material-icons {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a5884e;
+      pointer-events: none;
+      user-select: none;
+      font-size: 24px;
+      filter: drop-shadow(0 0 2px #cbb67fcc);
+    }
+
+    /* Input field */
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 12px 12px 48px;
+      font-size: 1.15rem;
+      border-radius: 12px;
+      border: 2px solid #cbb67f66;
+      background: rgba(255 255 255 / 0.05);
+      color: #e3dccc;
+      outline-offset: 4px;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+      font-family: inherit;
+      box-shadow: inset 0 2px 6px rgb(255 255 255 / 0.15);
+    }
+
+    input[type="text"]::placeholder {
+      color: #a5884e99;
+      font-style: italic;
+    }
+
+    input[type="text"]:focus {
+      border-color: #cbb67f;
+      background: rgba(255 255 255 / 0.15);
+      box-shadow: 0 0 16px 2px #cbb67f99;
+    }
+
+    /* Submit button */
+    button {
+      background: linear-gradient(135deg, #cbb67f, #a5884e);
+      color: #1a1a1a;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(197, 179, 118, 0.6);
+      transition: background 0.3s ease, transform 0.2s ease;
+      width: 100%;
+      user-select: none;
+    }
+
+    button:hover,
+    button:focus {
+      background: linear-gradient(135deg, #a5884e, #cbb67f);
+      transform: scale(1.05);
+      outline: none;
+      box-shadow: 0 8px 20px rgba(197, 179, 118, 0.9);
+    }
+
+    /* Response display */
+    .response {
+      margin-top: 32px;
+      font-size: 1.3rem;
+      font-family: 'Playfair Display', serif;
+      color: #cbb67f;
+      min-height: 36px;
+      text-shadow: 0 0 6px #cbb67fcc;
+      user-select: text;
+      transition: opacity 0.4s ease;
+      opacity: 0;
+    }
+
+    .response.show {
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 24px 20px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main" aria-label="Harry Potter wizard name entry">
+    <h1>Enter Your Wizard Name</h1>
+    <p class="subtitle">To reveal your Hogwarts destiny, please type your name below</p>
+
+    <form id="wizard-name-form" aria-describedby="form-desc" novalidate>
+      <div class="input-wrapper">
+        <span class="material-icons" aria-hidden="true" tabindex="-1">person</span>
+        <input type="text" id="wizard-name-input" name="wizardName" placeholder="Your wizard name" aria-label="Your wizard name" autocomplete="off" required />
+      </div>
+
+      <button type="submit" aria-live="polite">Reveal Your House</button>
+    </form>
+
+    <div id="response" class="response" role="alert" aria-live="assertive"></div>
+  </main>
+
+  <script>
+    const form = document.getElementById('wizard-name-form');
+    const input = document.getElementById('wizard-name-input');
+    const response = document.getElementById('response');
+
+    // Simple houses array to "assign" the user randomly
+    const houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'];
+    const houseColors = {
+      'Gryffindor': '#7f0909',
+      'Hufflepuff': '#eee117',
+      'Ravenclaw': '#000a90',
+      'Slytherin': '#0d6217'
+    };
+
+    function sanitizeName(name) {
+      return name.trim().replace(/[^\w\s]/gi, '');
+    }
+
+    function randomHouse(name) {
+      // Deterministic selection based on name hash for consistent result
+      let hash = 0;
+      for(let i = 0; i < name.length; i++) {
+        hash = (hash << 5) - hash + name.charCodeAt(i);
+        hash |= 0;
+      }
+      return houses[Math.abs(hash) % houses.length];
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const rawName = input.value;
+      const cleanName = sanitizeName(rawName);
+      if (!cleanName) {
+        response.textContent = 'Please enter a valid wizard name.';
+        response.style.color = '#cbb67f';
+        response.classList.add('show');
+        input.focus();
+        return;
+      }
+      const assignedHouse = randomHouse(cleanName);
+      response.textContent = `${cleanName}, you have been sorted into ${assignedHouse}!`;
+      response.style.color = houseColors[assignedHouse];
+      response.classList.add('show');
+    });
+
+    // Accessibility: Clear response on input change
+    input.addEventListener('input', () => {
+      response.textContent = '';
+      response.classList.remove('show');
+    });
+    
+  </script>
+</body>
+</html>
+
+  
